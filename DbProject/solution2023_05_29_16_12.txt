@@ -1,0 +1,22 @@
+What is the Capital City of Israel ?
+1) Washington - false
+2) London - false
+3) Jerusalem - true
+4) Amsterdam - false
+5) More than one answer are correct! - false
+6) No answer is correct! - false
+
+
+What is the capital city of Japan?
+1) Tokyo - true
+2) Beijing - false
+3) Seoul - false
+4) Bangkok - false
+5) More than one answer are correct! - false
+6) No answer is correct! - false
+
+
+What is the capital city of South Africa?
+The answer: Pretoria
+
+

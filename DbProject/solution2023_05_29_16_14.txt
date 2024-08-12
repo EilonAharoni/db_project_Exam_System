@@ -1,0 +1,24 @@
+What is the square root of 64?
+1) 40 - false
+2) 6 - false
+3) 5 - false
+4) 4 - false
+5) No answer is correct! - true
+
+
+How much is 8*5 ?
+1) 35 - false
+2) 24 - false
+3) 12 - false
+4) 40 - true
+5) No answer is correct! - false
+
+
+How much is 2+2 ?
+1) 4 - true
+2) 5 - false
+3) 13 - false
+4) 6 - false
+5) No answer is correct! - false
+
+
