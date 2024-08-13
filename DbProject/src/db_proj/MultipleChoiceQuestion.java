@@ -5,7 +5,7 @@ public class MultipleChoiceQuestion extends Question{
 	private static final int MAX_NUM_OF_ANSWERS = 10;
 	private int numOfAnswers;
 	private Answer[] answers;
-	private boolean[] answersCorrection;
+	public boolean[] answersCorrection; // MADE THIS PUBLIC TO REACH FROM QUESTION DAO
 
 
 	public MultipleChoiceQuestion(String questionDescription,eDifficultyLevel dificultyLevel) {

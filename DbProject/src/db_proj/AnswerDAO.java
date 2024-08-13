@@ -15,7 +15,7 @@ public class AnswerDAO {
 
     // Method to save an Answer to the database
     public void save(Answer answer) throws SQLException {
-        String sql = "INSERT INTO Answer (answer_description) VALUES (?) RETURNING id";
+        String sql = "INSERT INTO Answers (answer_description) VALUES (?) RETURNING answer_id";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, answer.getAnswerDescription());
             ResultSet rs = pstmt.executeQuery();
@@ -28,14 +28,14 @@ public class AnswerDAO {
 
     // Method to fetch an Answer by ID
     public Answer findById(int id) throws SQLException {
-        String sql = "SELECT id, answer_description FROM Answer WHERE id = ?";
+        String sql = "SELECT answer_id, answer_description FROM answers WHERE answer_id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 String description = rs.getString("answer_description");
                 Answer answer = new Answer(description);
-                answer.setId(rs.getInt("id"));
+                answer.setId(rs.getInt("answer_id"));
                 return answer;
             }
         }

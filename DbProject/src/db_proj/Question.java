@@ -68,7 +68,10 @@ public abstract class Question implements Serializable {
 	public int getId() {
 		return id;
 	}
-
+	// ADD SET ID
+	public void setId(int id) {
+		this.id = id;
+	}
 
 
 

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.ArrayList;
 //import java.text.SimpleDateFormat;
 //import java.util.Calendar;
 //import java.util.Date;
@@ -299,8 +301,89 @@ public class Main {
 		
 					 
 						 break;
-					 
-																								
+						 case 10:
+							 System.out.println("Get Answers");
+							 try {
+								 Connection conn2 = DatabaseManager.getConnection();
+								 List<Answer> answersList = new ArrayList<>();
+									boolean flag = false;
+								 do {
+									AnswerDAO answerdao_2 = new AnswerDAO(conn2);
+									for(int i =0;i<21;i++) {
+										Answer answer = answerdao_2.findById(i + 1);  // Retrieve answer by ID (assuming IDs start at 1)
+										if (answer != null) {
+											answersList.add(answer);
+										}
+									}
+									 for (Answer answer : answersList) {
+										 System.out.println(answer);
+									 }
+									flag = true;
+									conn2.close();
+								 }while(!flag);
+
+							 } catch (SQLException e) {
+								 e.printStackTrace();  // Handle the SQL exception
+							 }
+							 break;
+					case 9:
+						System.out.println("Save Answers");
+						try {
+							Connection conn2 = DatabaseManager.getConnection();
+							boolean flag = false;
+							do {
+								AnswerDAO answerdao_2 = new AnswerDAO(conn2);
+								for(int i =0;i<questionRepository.numOfAllAnswers;i++) {
+									if(questionRepository.allAnswers[i] == null)
+										break;
+									answerdao_2.save(questionRepository.allAnswers[i]);
+								}
+								flag = true;
+								conn2.close();
+							}while(!flag);
+
+						} catch (SQLException e) {
+							e.printStackTrace();  // Handle the SQL exception
+						}
+
+					 break;
+					case 12:
+						System.out.println("Saving Questions i hope");
+						try {
+							Connection conn2 = DatabaseManager.getConnection();
+							boolean flag = false;
+							do {
+								QuestionDAO answerdao_2 = new QuestionDAO(conn2);
+								for(int i =0;i<questionRepository.numOfAllQustiones;i++) {
+									if(questionRepository.allQuestions[i] == null)
+										break;
+									answerdao_2.save(questionRepository.allQuestions[i],questionRepository.getSubject());
+								}
+								flag = true;
+								conn2.close();
+							}while(!flag);
+
+						} catch (SQLException e) {
+							e.printStackTrace();  // Handle the SQL exception
+						}
+							break;
+					case 13:
+						System.out.println("Trying to fetch a Question");
+						try {
+							Connection conn2 = DatabaseManager.getConnection();
+							boolean flag = false;
+							do {
+								QuestionDAO answerdao_2 = new QuestionDAO(conn2);
+								Question qTry = answerdao_2.findById(9);
+								System.out.println(qTry);
+								conn2.close();
+								flag = true;
+							}while(!flag);
+
+						} catch (SQLException e) {
+							e.printStackTrace();  // Handle the SQL exception
+						}
+						break;
 				case BACK:
 					break;
 	
@@ -323,6 +406,7 @@ public class Main {
 		System.out.println("To delete a question) press--> 6");
 		System.out.println("To creat an exam manually) press--> 7");
 		System.out.println("To creat an exam automatically) press--> 8");
+		System.out.println("To Save all answers to data base Press --> 9");
 		System.out.println("To go back press 0");
 
 	}

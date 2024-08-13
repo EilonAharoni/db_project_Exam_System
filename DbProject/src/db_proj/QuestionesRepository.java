@@ -8,10 +8,11 @@ import db_proj.Question.eDifficultyLevel;
 public class QuestionesRepository implements Serializable{
 	private static final long serialVersionUID = -7886997808143966345L;
 	private String subject;
-	private int numOfAllQustiones;
-	private int numOfAllAnswers;
-	private Question[] allQuestions;
-	private Answer[] allAnswers;
+	// PUBLIC IN ORDER TO REACH IT FROM MAIN
+	public int numOfAllQustiones;
+	public int numOfAllAnswers;
+	public Question[] allQuestions;
+	public Answer[] allAnswers;
 
 	public QuestionesRepository(int numOfAllQustiones,String subject) {
 		this.allQuestions = new Question[numOfAllQustiones];

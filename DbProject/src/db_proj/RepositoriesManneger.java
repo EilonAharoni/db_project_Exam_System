@@ -34,14 +34,14 @@ private final int DEAFULT_SIZE=5;
 
 	public void initRepositories() throws IOException, ClassNotFoundException {
 		
-//		
-//		repositories[0] = new QuestionesRepository("Math");
-//		repositories[0].initHardCode();
-//		repositories[1] = new QuestionesRepository("Capitals");
-//		repositories[1].initHardCode();
-//		repositories[2] = new QuestionesRepository("create new repository");
-//		numRepositories = 3;
-//		saveRepositories(repositories, "repository.dat");
+		// HARD CODE BECAUSE IT IS NOT STABLE
+		repositories[0] = new QuestionesRepository("Math");
+		repositories[0].initHardCode();
+		repositories[1] = new QuestionesRepository("Capitals");
+		repositories[1].initHardCode();
+		repositories[2] = new QuestionesRepository("create new repository");
+		numRepositories = 3;
+		saveRepositories(repositories, "repository.dat");
 //		
 		// read repositories from binary file
 		repositories = loadRepositories("repository.dat");
