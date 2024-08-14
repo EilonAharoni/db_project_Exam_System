@@ -88,7 +88,8 @@ public class Main {
 		 
 		RepositoriesManneger repositoriesManager = new RepositoriesManneger();
 		try {
-			repositoriesManager.initRepositories();
+			Connection conn = DatabaseManager.getConnection();
+			repositoriesManager.initRepositoriesFromDB(conn);
 		} catch (Exception e) {
 			System.out.println("Could not find initialization file..");
 		}
@@ -301,7 +302,7 @@ public class Main {
 		
 					 
 						 break;
-						 case 10:
+						 case 9:
 							 System.out.println("Get Answers");
 							 try {
 								 Connection conn2 = DatabaseManager.getConnection();
@@ -326,7 +327,7 @@ public class Main {
 								 e.printStackTrace();  // Handle the SQL exception
 							 }
 							 break;
-					case 9:
+					case 10:
 						System.out.println("Save Answers");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
@@ -347,7 +348,7 @@ public class Main {
 						}
 
 					 break;
-					case 12:
+					case 11:
 						System.out.println("Saving Questions i hope");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
@@ -367,14 +368,14 @@ public class Main {
 							e.printStackTrace();  // Handle the SQL exception
 						}
 							break;
-					case 13:
+					case 12:
 						System.out.println("Trying to fetch a Question");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
 							boolean flag = false;
 							do {
 								QuestionDAO answerdao_2 = new QuestionDAO(conn2);
-								Question qTry = answerdao_2.findById(9);
+								Question qTry = answerdao_2.findById(2);
 								System.out.println(qTry);
 								conn2.close();
 								flag = true;
@@ -406,7 +407,10 @@ public class Main {
 		System.out.println("To delete a question) press--> 6");
 		System.out.println("To creat an exam manually) press--> 7");
 		System.out.println("To creat an exam automatically) press--> 8");
-		System.out.println("To Save all answers to data base Press --> 9");
+		System.out.println("To get all answers to data base Press --> 9");
+		System.out.println("To save all answers to data base Press --> 10");
+		System.out.println("To save all questions to data base Press --> 11");
+		System.out.println("To get a question to data base Press --> 12");
 		System.out.println("To go back press 0");
 
 	}

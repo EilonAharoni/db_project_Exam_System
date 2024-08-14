@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import static db_proj.MultipleChoiceQuestion.MAX_NUM_OF_ANSWERS;
+
 public class QuestionDAO {
     private Connection connection;
 
@@ -33,7 +36,7 @@ public class QuestionDAO {
             // Set the specific attribute based on question type
             if (question instanceof OpenQuestion) {
                 OpenQuestion openQuestion = (OpenQuestion) question;
-                int rightAnswerId = openQuestion.getSchoolAnswerID() + 1; // Assuming getRightAnswer() returns an Answer object
+                int rightAnswerId = openQuestion.getSchoolAnswerID() + 1; // Assuming getRightAnswer() returns an Answer object THIS IS NOT GOOD ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 pstmt.setInt(4, rightAnswerId);
             } else if (question instanceof MultipleChoiceQuestion) {
                 MultipleChoiceQuestion multipleChoice = (MultipleChoiceQuestion) question;
@@ -52,9 +55,9 @@ public class QuestionDAO {
                     try (PreparedStatement pstmt2 = connection.prepareStatement(sql)) {
                         MultipleChoiceQuestion multipleChoice = (MultipleChoiceQuestion) question;
                         Answer[] answers = multipleChoice.getAnswers();
-                        for (int i = 0;i<4;i++) {
+                        for (int i = 0;i<multipleChoice.getNumOfAnswers();i++) {
                             pstmt2.setInt(1, multipleChoice.getId());  // The generated question_id from the MultipleChoice table
-                            pstmt2.setInt(2, answers[i].getId() + 1);          // The answer_id from the Answer object
+                            pstmt2.setInt(2, answers[i].getId());          // The answer_id from the Answer object
                             pstmt2.setBoolean(3, multipleChoice.answersCorrection[i]);  // Assuming isCorrect() returns a boolean indicating if it's the correct answer
                             pstmt2.executeUpdate();
                         }
@@ -73,10 +76,10 @@ public class QuestionDAO {
         if (question != null) {
             return question;
         }
-        return question;
-        // If not found, try to find the question in MultipleChoice
-//        question = findMultipleChoiceQuestionById(id);
-//        return question;
+       else {
+            question = findMultipleChoiceQuestionById(id);
+            return question;
+        }
     }
 
     private OpenQuestion findOpenQuestionById(int id) throws SQLException {
@@ -101,46 +104,49 @@ public class QuestionDAO {
         return openQuestion;
     }
 
-//    private MultipleChoiceQuestion findMultipleChoiceQuestionById(int id) throws SQLException {
-//        String sql = "SELECT * FROM MultipleChoice WHERE question_id = ?";
-//        MultipleChoiceQuestion multipleChoice = null;
-//
-//        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-//            pstmt.setInt(1, id);
-//            ResultSet rs = pstmt.executeQuery();
-//
-//            if (rs.next()) {
-//                multipleChoice = new MultipleChoiceQuestion();
-//                multipleChoice.setId(rs.getInt("question_id"));
-//                multipleChoice.setQuestionDescription(rs.getString("question_description"));
-//                multipleChoice.setDifficultyLevel(DifficultyLevel.valueOf(rs.getString("difficulty_level")));
-//                multipleChoice.setSubject(rs.getString("subject"));
-//                multipleChoice.setQuestionType("multiple");
-//                multipleChoice.setNumberOfAnswers(rs.getInt("number_of_answers"));
-//
-//                // Retrieve associated answers
-//                String answersSql = "SELECT * FROM Multiple_Choice_Answers WHERE question_id = ?";
-//                try (PreparedStatement answersPstmt = connection.prepareStatement(answersSql)) {
-//                    answersPstmt.setInt(1, id);
-//                    ResultSet answersRs = answersPstmt.executeQuery();
-//
-//                    List<Answer> answers = new ArrayList<>();
-//                    boolean[] isCorrect = new boolean[4]; // Assuming you know there are 4 answers
-//                    int index = 0;
-//                    while (answersRs.next()) {
-//                        int answerId = answersRs.getInt("answer_id");
-//                        Answer answer = findAnswerById(answerId);
-//                        answers.add(answer);
-//                        isCorrect[index++] = answersRs.getBoolean("is_correct");
-//                    }
-//                    multipleChoice.setAnswers(answers);
-//                    multipleChoice.setAnswersCorrection(isCorrect);
-//                }
-//            }
-//        }
-//
-//        return multipleChoice;
-//    }
+    private MultipleChoiceQuestion findMultipleChoiceQuestionById(int id) throws SQLException {
+        String sql = "SELECT * FROM MultipleChoice WHERE question_id = ?";
+        MultipleChoiceQuestion multipleChoice = null;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String desc = rs.getString("question_description");
+                Question.eDifficultyLevel diff = Question.eDifficultyLevel.valueOf(rs.getString("difficulty_level"));
+
+                multipleChoice = new MultipleChoiceQuestion(desc, diff);
+                multipleChoice.setNumOfAnswers(rs.getInt("number_of_answers"));
+                multipleChoice.setId(rs.getInt("question_id"));
+
+                // Retrieve associated answers
+                String answersSql = "SELECT * FROM Multiple_Choice_Answers WHERE question_id = ?";
+                try (PreparedStatement answersPstmt = connection.prepareStatement(answersSql)) {
+                    answersPstmt.setInt(1, id);
+                    ResultSet answersRs = answersPstmt.executeQuery();
+
+                    Answer[] answers = new Answer[MAX_NUM_OF_ANSWERS];
+                    boolean[] isCorrect = new boolean[multipleChoice.getNumOfAnswers()];
+                    int index = 0;
+
+                    AnswerDAO answerDao = new AnswerDAO(connection);
+
+                    while (answersRs.next()) {
+                        int answerId = answersRs.getInt("answer_id");
+                        Answer answer = answerDao.findById(answerId);
+                        answers[index] = answer;
+                        isCorrect[index++] = answersRs.getBoolean("is_correct");
+                    }
+
+                    multipleChoice.setAnswers(answers);
+                    multipleChoice.setAnswersCorrection(isCorrect);
+                }
+            }
+        }
+
+        return multipleChoice;
+    }
 
 
 

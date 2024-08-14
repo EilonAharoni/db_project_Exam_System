@@ -2,7 +2,7 @@ package db_proj;
 
 public class MultipleChoiceQuestion extends Question{
 //	private static final long serialVersionUID = 7799355368392491640L;
-	private static final int MAX_NUM_OF_ANSWERS = 10;
+	public static final int MAX_NUM_OF_ANSWERS = 10;
 	private int numOfAnswers;
 	private Answer[] answers;
 	public boolean[] answersCorrection; // MADE THIS PUBLIC TO REACH FROM QUESTION DAO
@@ -25,6 +25,18 @@ public class MultipleChoiceQuestion extends Question{
 
 
 
+	public void setNumOfAnswers(int num)
+	{
+		this.numOfAnswers = num;
+	}
+	public void setAnswersCorrection(boolean[] True)
+	{
+		this.answersCorrection = True;
+	}
+	public void setAnswers(Answer[] answers)
+	{
+		this.answers = answers;
+	}
 
 
 	//	public Question getQuestionById(int id) {// riposetory
