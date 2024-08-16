@@ -25,8 +25,7 @@ public class OpenQuestion extends Question {
 		super(other);
 		this.schoolAnswer = other.schoolAnswer;
 		
-	}
-
+	}//
 	@Override
 	public String toString() {
 		return super.toString()+"\n"+ "The answer: " + schoolAnswer + "\n\n";
@@ -43,6 +42,7 @@ public class OpenQuestion extends Question {
 
 	public void setSchoolAnswer(String schoolAnswer) {
 		this.schoolAnswer = new Answer(schoolAnswer);
+
 	}
 
 }

@@ -90,6 +90,8 @@ public class Main {
 		try {
 			Connection conn = DatabaseManager.getConnection();
 			repositoriesManager.initRepositoriesFromDB(conn);
+		//	repositoriesManager.initRepositories();
+			conn.close();
 		} catch (Exception e) {
 			System.out.println("Could not find initialization file..");
 		}
