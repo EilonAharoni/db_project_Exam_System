@@ -87,9 +87,26 @@ private final int DEAFULT_SIZE=5;
 				}
 			}
 		}
+		this.repositories[i].numOfAllAnswers = countAnswers(conn,this.repositories[i].getSubject());
+
+		   AnswerDAO a_DAO = new AnswerDAO(conn);
+		   j = 0;
+		   {
+			   String sql = "SELECT answer_id FROM Answers WHERE subject_name = ?";
+
+			   try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				   pstmt.setString(1, subjectName.get(i));
+				   ResultSet rs = pstmt.executeQuery();
+				   while (rs.next()) {
+					   this.repositories[i].allAnswers[j++] = a_DAO.findById(rs.getInt("answer_id"));
+				   }
+			   }
+		   }
 
 	   }
 	   repositories[this.numRepositories++] = new QuestionesRepository("create new repository");
+
+
 
 
    }
@@ -97,6 +114,25 @@ private final int DEAFULT_SIZE=5;
 		String sql = "SELECT COUNT(q.question_id) " +
 				"FROM public.subjects s " +
 				"INNER JOIN questions q ON s.subject_name = q.subject " +
+				"WHERE s.subject_name = ?"; // Use parameter placeholder
+		int count = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, subjectname); // Set the subjectname parameter
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				count = rs.getInt(1);
+			}
+		}
+
+		return count;
+	}
+
+
+	public int countAnswers(Connection conn, String subjectname) throws SQLException {
+		String sql = "SELECT COUNT(an.answer_id) " +
+				"FROM public.subjects s " +
+				"INNER JOIN answers an  ON s.subject_name = an.subject_name " +
 				"WHERE s.subject_name = ?"; // Use parameter placeholder
 		int count = 0;
 

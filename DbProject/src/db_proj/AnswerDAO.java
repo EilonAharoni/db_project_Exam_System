@@ -14,10 +14,11 @@ public class AnswerDAO {
     }
 
     // Method to save an Answer to the database
-    public void save(Answer answer) throws SQLException {
-        String sql = "INSERT INTO Answers (answer_description) VALUES (?) RETURNING answer_id";
+    public void save(Answer answer,String subject) throws SQLException {
+        String sql = "INSERT INTO Answers (answer_description,subject_name) VALUES (?,?) RETURNING answer_id"; /// SUBJECT ADDED BESEDER?
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, answer.getAnswerDescription());
+            pstmt.setString(2,subject);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 int generatedId = rs.getInt(1);

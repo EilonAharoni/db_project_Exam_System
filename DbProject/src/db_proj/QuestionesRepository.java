@@ -217,6 +217,18 @@ public class QuestionesRepository implements Serializable{
 		this.allAnswers[numOfAllAnswers++] = newAnswer;
 		return true;
 	}
+	public boolean addAnswerToRepository(String newAnswerDescription,Answer ans) {
+		for (int i = 0; i < numOfAllAnswers; i++) {
+			if (newAnswerDescription.equals(allAnswers[i].getAnswerDescription()))
+				return false;// this answers is alredy exist
+		}
+		if (numOfAllAnswers == allAnswers.length)
+			allAnswers = Arrays.copyOf(allAnswers, numOfAllAnswers * 2);
+
+		Answer newAnswer = new Answer(newAnswerDescription);
+		this.allAnswers[numOfAllAnswers++] = ans;
+		return true;
+	}
 
 	// Add answer from repository to qustion(3)
 	public boolean addAnswerFromRepoToQusteion(int qustionNumber, int answerIndex, boolean correction) {
@@ -252,6 +264,20 @@ public class QuestionesRepository implements Serializable{
 			allQuestions = Arrays.copyOf(allQuestions, numOfAllQustiones * 2);
 		this.addAnswerToRepository(schoolAnswer);
 		Answer ans = allAnswers[numOfAllAnswers-1];
+		allQuestions[numOfAllQustiones++] = new OpenQuestion(question,dificultyLevel,ans);
+
+		return true;
+	}
+
+	public boolean addOpenQuestion(String question, eDifficultyLevel dificultyLevel,String schoolAnswer,Answer ans) {
+		for (int i = 0; i < numOfAllQustiones; i++) {
+			if (question.equals(allQuestions[i].getQuestionDescription())) // this question alredy exist
+				return false;
+		}
+		if (numOfAllQustiones == allQuestions.length)
+			allQuestions = Arrays.copyOf(allQuestions, numOfAllQustiones * 2);
+		this.addAnswerToRepository(schoolAnswer,ans);
+		//Answer ans = allAnswers[numOfAllAnswers-1];
 		allQuestions[numOfAllQustiones++] = new OpenQuestion(question,dificultyLevel,ans);
 
 		return true;
