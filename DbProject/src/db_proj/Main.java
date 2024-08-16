@@ -5,6 +5,8 @@ package db_proj;
 //import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -90,6 +92,7 @@ public class Main {
 		try {
 			Connection conn = DatabaseManager.getConnection();
 			repositoriesManager.initRepositoriesFromDB(conn);
+			conn.close();
 		} catch (Exception e) {
 			System.out.println("Could not find initialization file..");
 		}
@@ -267,14 +270,30 @@ public class Main {
 	
 					System.out.println(questionRepository);// print repository to show the user
 					ManuallyExam manuallyExam = new ManuallyExam(amountOfQuestions);
+					int generatedTestId = 0;
 					try {
-						manuallyExam.creatExam(questionRepository);
+						Connection conn = DatabaseManager.getConnection();
+						String sql = "INSERT INTO tests (user_id) VALUES (?) RETURNING test_id";
+						PreparedStatement pstmt = conn.prepareStatement(sql);
+							pstmt.setString(1, user.getUsername());
+							ResultSet rs = pstmt.executeQuery();
+							if (rs.next()) {
+								 generatedTestId = rs.getInt(1);
+							}
+							if(generatedTestId<=0) {
+								System.out.println("Bad TEST ID");
+								return;
+							}
+						manuallyExam.creatExam(questionRepository,generatedTestId,conn);
+							conn.close();
 					} catch (MoreQuestionsThanAllowedException | NotEnoughAnswersInQuestionException e) {
 						System.out.println(e.getMessage());
 						break;
 						
+					} catch (SQLException e) {
+						throw new RuntimeException(e);
 					}
-				//	manuallyExam.deployToFile();
+					//	manuallyExam.deployToFile();
 	
 					break;
 					
@@ -290,17 +309,30 @@ public class Main {
 						}
 					 
 						 AutomaticExam AutomaticExam = new AutomaticExam(amountOfQuestions);
+						int generatedTestId2 = 0;
 						 try {
-							 AutomaticExam.creatExam(questionRepository);
-							 
+
+							 Connection conn = DatabaseManager.getConnection();
+							 String sql = "INSERT INTO tests (user_id) VALUES (?) RETURNING test_id";
+							 PreparedStatement pstmt = conn.prepareStatement(sql);
+							 pstmt.setString(1, user.getUsername());
+							 ResultSet rs = pstmt.executeQuery();
+							 if (rs.next()) {
+								 generatedTestId2 = rs.getInt(1);
+							 }
+							 if(generatedTestId2<=0) {
+								 System.out.println("Bad TEST ID");
+								 return;
+							 }
+							 AutomaticExam.creatExam(questionRepository,generatedTestId2,conn);
+							 conn.close();
 							 
 						 } catch (Exception e) {
 						 System.out.println(e.getMessage());
-						
+
 							
 						}
-		
-					 
+
 						 break;
 						 case 9:
 							 System.out.println("Get Answers");

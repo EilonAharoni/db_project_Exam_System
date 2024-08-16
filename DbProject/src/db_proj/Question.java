@@ -10,18 +10,18 @@ public abstract class Question implements Serializable {
 	};
 	protected String questionDescription;
 	protected eDifficultyLevel dificultyLevel;
-	protected static int idCoounter;
+//	protected static int idCoounter;
 	private int id;
 	
 	
 	public Question(String questionDescriptio,eDifficultyLevel dificultyLevel) {
 		setQuestionDescription(questionDescriptio);
 		this.dificultyLevel = dificultyLevel;
-		 this.id = ++idCoounter;
+//		 this.id = ++idCoounter;
 	}
 	public Question(Question other) {
 		this(other.questionDescription,other.dificultyLevel);
-		 this.id = ++idCoounter;
+//		 this.id = ++idCoounter;
 	
 		
 	}

@@ -250,9 +250,10 @@ public class QuestionesRepository implements Serializable{
 		}
 		if (numOfAllQustiones == allQuestions.length)
 			allQuestions = Arrays.copyOf(allQuestions, numOfAllQustiones * 2);
-
-		allQuestions[numOfAllQustiones++] = new OpenQuestion(question,dificultyLevel,schoolAnswer);
 		this.addAnswerToRepository(schoolAnswer);
+		Answer ans = allAnswers[numOfAllAnswers-1];
+		allQuestions[numOfAllQustiones++] = new OpenQuestion(question,dificultyLevel,ans);
+
 		return true;
 	}
 

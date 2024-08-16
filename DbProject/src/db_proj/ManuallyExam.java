@@ -7,6 +7,10 @@ import java.io.IOException;
 //import java.text.SimpleDateFormat;
 //import java.util.Calendar;
 //import java.util.Date;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ManuallyExam extends Exam{
@@ -28,11 +32,11 @@ public class ManuallyExam extends Exam{
 	public static Scanner s = new Scanner(System.in);
 	
 	@Override ///////creatExam////////
-	public void creatExam(QuestionesRepository repository) throws MoreQuestionsThanAllowedException, IOException, NotEnoughAnswersInQuestionException {	
+	public void creatExam(QuestionesRepository repository, int testID, Connection conn) throws MoreQuestionsThanAllowedException, IOException, NotEnoughAnswersInQuestionException, SQLException {
 		if(amountOfWantQuestions > MAX_OF_QUESTIONS_ALLOW) {
 			throw new MoreQuestionsThanAllowedException(amountOfWantQuestions);
 		}
-
+		List<Integer> idList = new ArrayList<>();
 		int qChoice = -1;
 		while (qChoice != 0 && amountOfWantQuestions > 0) {// loop to add all the qustions
 			System.out.println("Chooce your qustion or press --> 0 to exit ");
@@ -47,7 +51,8 @@ public class ManuallyExam extends Exam{
 				if(!this.addQuestionInExam(req1)) {
 					System.out.println("This question already exists, plese choose again\n");
 					continue;
-				};// Add new qustion to the exam   
+				};// Add new qustion to the exam
+			idList.add(repository.getQuestionByNumber(qChoice).getId());
 				if(req1 instanceof MultipleChoiceQuestion) {
 					if(((MultipleChoiceQuestion) req1).getNumOfAnswers()<MINIMUM_ANSSWERS_IN_QUESTION) {
 						throw new NotEnoughAnswersInQuestionException(qChoice);
@@ -115,7 +120,8 @@ public class ManuallyExam extends Exam{
 		       }
 				amountOfWantQuestions--;
 			} 
-				this.deployToFile();
+				//this.deployToFile();
+				this.saveTestToDataBase(conn,testID,idList);
 		}
 			
 		

@@ -36,7 +36,7 @@ public class QuestionDAO {
             // Set the specific attribute based on question type
             if (question instanceof OpenQuestion) {
                 OpenQuestion openQuestion = (OpenQuestion) question;
-                int rightAnswerId = openQuestion.getSchoolAnswerID() + 1; // Assuming getRightAnswer() returns an Answer object THIS IS NOT GOOD ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                int rightAnswerId = openQuestion.getSchoolAnswerID(); // Assuming getRightAnswer() returns an Answer object THIS IS NOT GOOD ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 pstmt.setInt(4, rightAnswerId);
             } else if (question instanceof MultipleChoiceQuestion) {
                 MultipleChoiceQuestion multipleChoice = (MultipleChoiceQuestion) question;
