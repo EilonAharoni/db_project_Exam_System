@@ -112,7 +112,14 @@ public class Main {
 			if (index == repositoriesManager.getNumRepositories()) {
 				System.out.println("Please enter subject for the new repsitory");
 				String newRepoSubject =  s.next();
-				repositoriesManager.addRepository(newRepoSubject);
+				try {
+					Connection conn = DatabaseManager.getConnection();
+					repositoriesManager.addRepository(conn,newRepoSubject);
+					conn.close();
+				} catch (Exception e) {
+					System.out.println("Could not Enter new subject..");
+				}
+
 			}
 		
 			QuestionesRepository questionRepository = repositoriesManager.getRepository(index-1);
@@ -321,8 +328,24 @@ public class Main {
 	
 				case OP6:
 					System.out.println("What is the number of the question you would like to delete?");
-					if (questionRepository.deleteQuestion(s.nextInt()))// Check q exist + define int
-						System.out.println("Question successfully deleted\n");
+					int numOfQuestion = s.nextInt();
+					int questionID = questionRepository.allQuestions[numOfQuestion-1].getId();
+					if (questionRepository.deleteQuestion(numOfQuestion))// Check q exist + define int
+					{
+						try {
+								String sql = "DELETE FROM questions WHERE question_id = ?";
+								Connection conn = DatabaseManager.getConnection();
+								try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+									pstmt.setInt(1, questionID);
+									pstmt.executeUpdate(); // Execute the delete operation
+								}
+								System.out.println("Question successfully deleted\n");
+
+						}
+						catch (SQLException e) {
+							System.out.println(e.getMessage());
+						}
+					}
 					else
 						System.out.println(INVALID);
 	

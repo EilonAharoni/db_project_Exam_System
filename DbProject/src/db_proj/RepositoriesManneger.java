@@ -191,18 +191,39 @@ private final int DEAFULT_SIZE=5;
 		return ans;
 		
 	}
-	public boolean addRepository(String newRepoSubject) {
+      public boolean addRepository(Connection conn,String newRepoSubject) {
 		for (int i = 0; i < numRepositories; i++) {
 			if (repositories[i].getSubject().equals(newRepoSubject)) // this question alredy exist
 				return false;
 		}
-		
+
 		if (numRepositories == repositories.length)
 			repositories = Arrays.copyOf(repositories, numRepositories * 2);
 
-		repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
-		repositories[numRepositories++] = new QuestionesRepository("create new repository");
-		return true;
+
+		try {
+			// Save the new subject to the database
+			String insertSubjectSQL = "INSERT INTO subjects (subject_name) VALUES (?)";
+			try (PreparedStatement pstmt = conn.prepareStatement(insertSubjectSQL)) {
+				pstmt.setString(1, newRepoSubject);
+				pstmt.executeUpdate();
+			}
+
+			// Add the new repository to the repositories array
+			repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
+			System.out.println("New subject added successfully");
+			repositories[numRepositories++] = new QuestionesRepository("create new repository");
+
+			return true;
+		} catch (SQLException e) {
+			System.out.println("Error occurred while adding new subject to the database: " + e.getMessage());
+			return false;
+		}
+
+//		repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
+//		repositories[numRepositories++] = new QuestionesRepository("create new repository");
+//		return true;
 	}
+
 
 }
