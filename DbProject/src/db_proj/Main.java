@@ -134,6 +134,9 @@ public class Main {
 			final int OP6 = 6;
 			final int OP7 = 7;
 			final int OP8 = 8;
+			final int OP9 = 9;
+			final int OP10 = 10;
+			final int OP11 = 11;
 			
 			
 			do {
@@ -435,7 +438,7 @@ public class Main {
 						}
 
 						 break;
-						 case 9:
+						 case OP9:
 							 System.out.println("Save Answers");
 								try {
 									Connection conn2 = DatabaseManager.getConnection();
@@ -457,7 +460,7 @@ public class Main {
 
 							 break;
 							
-					case 10:
+					case OP10:
 						System.out.println("Saving Questions i hope");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
@@ -478,7 +481,7 @@ public class Main {
 						}
 							break;
 					
-					case 11:
+					case OP11:
 						System.out.println("Trying to fetch a Question");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
