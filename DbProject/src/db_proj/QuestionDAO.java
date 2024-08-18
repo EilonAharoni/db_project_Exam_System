@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static db_proj.MultipleChoiceQuestion.MAX_NUM_OF_ANSWERS;
 
@@ -80,6 +82,26 @@ public class QuestionDAO {
             question = findMultipleChoiceQuestionById(id);
             return question;
         }
+    }
+    
+    public Answer[] findAnswersByQuestionId(int questionId) throws SQLException {
+        String sql = "SELECT a.answer_id, a.answer_description " +
+                     "FROM public.answers a " +
+                     "INNER JOIN public.question_answers qa ON a.answer_id = qa.answer_id " +
+                     "WHERE qa.question_id = ?";
+        List<Answer> answers = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, questionId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Answer answer = new Answer(rs.getString("answer_description"));
+                answers.add(answer);
+            }
+        }
+
+        return answers.toArray(new Answer[0]); // Convert List to Array
     }
 
     private OpenQuestion findOpenQuestionById(int id) throws SQLException {
