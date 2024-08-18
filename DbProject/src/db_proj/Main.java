@@ -436,52 +436,28 @@ public class Main {
 
 						 break;
 						 case 9:
-							 System.out.println("Get Answers");
-							 try {
-								 Connection conn2 = DatabaseManager.getConnection();
-								 List<Answer> answersList = new ArrayList<>();
+							 System.out.println("Save Answers");
+								try {
+									Connection conn2 = DatabaseManager.getConnection();
 									boolean flag = false;
-								 do {
-									AnswerDAO answerdao_2 = new AnswerDAO(conn2);
-									for(int i =0;i<21;i++) {
-										Answer answer = answerdao_2.findById(i + 1);  // Retrieve answer by ID (assuming IDs start at 1)
-										if (answer != null) {
-											answersList.add(answer);
+									do {
+										AnswerDAO answerdao_2 = new AnswerDAO(conn2);
+										for(int i =0;i<questionRepository.numOfAllAnswers;i++) {
+											if(questionRepository.allAnswers[i] == null)
+												break;
+											answerdao_2.save(questionRepository.allAnswers[i],questionRepository.getSubject());
 										}
-									}
-									 for (Answer answer : answersList) {
-										 System.out.println(answer);
-									 }
-									flag = true;
-									conn2.close();
-								 }while(!flag);
+										flag = true;
+										conn2.close();
+									}while(!flag);
 
-							 } catch (SQLException e) {
-								 e.printStackTrace();  // Handle the SQL exception
-							 }
-							 break;
-					case 10:
-						System.out.println("Save Answers");
-						try {
-							Connection conn2 = DatabaseManager.getConnection();
-							boolean flag = false;
-							do {
-								AnswerDAO answerdao_2 = new AnswerDAO(conn2);
-								for(int i =0;i<questionRepository.numOfAllAnswers;i++) {
-									if(questionRepository.allAnswers[i] == null)
-										break;
-									answerdao_2.save(questionRepository.allAnswers[i],questionRepository.getSubject());
+								} catch (SQLException e) {
+									e.printStackTrace();  // Handle the SQL exception
 								}
-								flag = true;
-								conn2.close();
-							}while(!flag);
 
-						} catch (SQLException e) {
-							e.printStackTrace();  // Handle the SQL exception
-						}
-
-					 break;
-					case 11:
+							 break;
+							
+					case 10:
 						System.out.println("Saving Questions i hope");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
@@ -501,7 +477,8 @@ public class Main {
 							e.printStackTrace();  // Handle the SQL exception
 						}
 							break;
-					case 12:
+					
+					case 11:
 						System.out.println("Trying to fetch a Question");
 						try {
 							Connection conn2 = DatabaseManager.getConnection();
@@ -518,6 +495,7 @@ public class Main {
 							e.printStackTrace();  // Handle the SQL exception
 						}
 						break;
+				
 				case BACK:
 					break;
 	
@@ -540,10 +518,9 @@ public class Main {
 		System.out.println("To delete a question) press--> 6");
 		System.out.println("To creat an exam manually) press--> 7");
 		System.out.println("To creat an exam automatically) press--> 8");
-		System.out.println("To get all answers to data base Press --> 9");
-		System.out.println("To save all answers to data base Press --> 10");
-		System.out.println("To save all questions to data base Press --> 11");
-		System.out.println("To get a question to data base Press --> 12");
+		System.out.println("To save all answers to data base Press --> 9");
+		System.out.println("To save all questions to data base Press --> 10");
+		System.out.println("To get a question to data base Press --> 11");
 		System.out.println("To go back press 0");
 
 	}
