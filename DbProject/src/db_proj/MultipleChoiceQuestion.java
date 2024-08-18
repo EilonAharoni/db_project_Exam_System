@@ -129,8 +129,10 @@ public class MultipleChoiceQuestion extends Question{
 	
 	public boolean answerExist(Answer ans) {
 		for (int i = 0; i < numOfAnswers; i++) {
-			if(this.answers[i]== ans)
+			if(this.answers[i].getAnswerDescription().equals(ans.getAnswerDescription()))
 				return true;
+			
+			
 		}
 		return false;
 	}

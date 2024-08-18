@@ -51,7 +51,7 @@ private final int DEAFULT_SIZE=5;
 		saveRepositories(repositories, "repository.dat");
 //		
 		// read repositories from binary file
-		repositories = loadRepositories("repository.dat");
+//		repositories = loadRepositories("repository.dat");
 		boolean found = false;
 		for (int i = 0; i < DEAFULT_SIZE; i++) {
 			if (repositories[i] == null) {

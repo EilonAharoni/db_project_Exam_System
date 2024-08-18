@@ -89,6 +89,7 @@ public class Main {
             
 		 
 		RepositoriesManneger repositoriesManager = new RepositoriesManneger();
+		
 		try {
 			Connection conn = DatabaseManager.getConnection();
 			repositoriesManager.initRepositoriesFromDB(conn);
@@ -164,54 +165,57 @@ public class Main {
 						break;
 
 					case OP3:
-						try {
-							System.out.println("Which question would you like to add an answer to?");
-							int questienIndex2 = s.nextInt();
-							Question q = questionRepository.getQuestionByNumber(questienIndex2);
-							if (q == null || q instanceof OpenQuestion) {
-								System.out.println(INVALID);
-								break;
-							}
-							System.out.println("Answers thet already exist in the qustion: \n"
-									+ ((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)).showeQuestion());
-							System.out.println(questionRepository.showAnswersFromRepository((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)));
-							System.out.println("Please write the number of the new answer");
-							int ansIndx2 = s.nextInt();
-							if (ansIndx2 > 0 && ansIndx2 <= questionRepository.getNumOfAnswers()) {
-								System.out.println("Please write the correctness of the answer (true/false)");
-								boolean correctness = s.nextBoolean();
-								if (questionRepository.addAnswerFromRepoToQusteion(questienIndex2, ansIndx2, correctness)) {
+					    try {
+					        System.out.println("Which question would you like to add an answer to?");
+					        int questienIndex2 = s.nextInt();
+					        Question q = questionRepository.getQuestionByNumber(questienIndex2);
+					        
+					        if (q == null || q instanceof OpenQuestion) {
+					            System.out.println(INVALID);
+					            break;
+					        }
+					        
+					        System.out.println("Answers that already exist in the question: \n"
+					                + ((MultipleChoiceQuestion) q).showeQuestion());
+					        System.out.println(questionRepository.showAnswersFromRepository((MultipleChoiceQuestion) q));
+					        
+					        System.out.println("Please write the number of the new answer");
+					        int ansIndx2 = s.nextInt();
+					        
+					        if (ansIndx2 > 0 && ansIndx2 <= questionRepository.getNumOfAnswers()) {
+					            System.out.println("Please write the correctness of the answer (true/false)");
+					            boolean correctness = s.nextBoolean();
+					            
+					            if (questionRepository.addAnswerFromRepoToQusteion(questienIndex2, ansIndx2, correctness)) {
+					                
+					                String sql = "INSERT INTO Multiple_Choice_Answers (question_id, answer_id, is_correct) VALUES (?, ?, ?)";
+					                Connection conn = DatabaseManager.getConnection();
+					                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+					                    Answer ans = questionRepository.allAnswers[ansIndx2 - 1];
+					                    int answerId = ans.getId();
+					                    int questionId = q.getId();
+					                    pstmt.setInt(1, questionId);  // The generated question_id from the MultipleChoice table
+					                    pstmt.setInt(2, answerId);    // The answer_id from the Answer object
+					                    pstmt.setBoolean(3, correctness);  // Correctness of the answer
+					                    pstmt.executeUpdate();  // Insert the new answer into the database
+					                    
+					                    // The trigger will automatically update the number_of_answers
+					                    System.out.println("Answer added successfully. The number_of_answers is automatically updated by the trigger.\n");
+					                } catch (SQLException e) {
+					                    System.out.println("Error occurred while inserting the answer into the database: " + e.getMessage());
+					                }
+					                break;
+					            }
+					        }
 
-									String sql = "INSERT INTO Multiple_Choice_Answers (question_id, answer_id, is_correct) VALUES (?, ?, ?)";
-									Connection conn = DatabaseManager.getConnection();
-									PreparedStatement pstmt2 = conn.prepareStatement(sql);
-									Answer ans = questionRepository.allAnswers[ansIndx2-1];
-									int answerId = ans.getId();
-									int questionId = q.getId();
-									pstmt2.setInt(1, questionId);  // The generated question_id from the MultipleChoice table
-									pstmt2.setInt(2, answerId);          // The answer_id from the Answer object
-									pstmt2.setBoolean(3, correctness);  // Assuming isCorrect() returns a boolean indicating if it's the correct answer
-									pstmt2.executeUpdate();
-									sql = "UPDATE multiplechoice SET number_of_answers = number_of_answers + 1 WHERE question_id = ?";
-									try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-										pstmt.setInt(1, q.getId());
-										pstmt.executeUpdate(); // Execute the update operation
-									}
-									System.out.println("Add successfully\n");
-									break;
-								}
-							}
+					        System.out.println(INVALID);
+					        break;
 
-							System.out.println(INVALID);
-							break;
+					    } catch (InputMismatchException | SQLException e) {
+					        System.out.println("Error: " + e.getMessage());
+					    }
+					    break;
 
-
-						}
-						catch (InputMismatchException | SQLException e) {
-							System.out.println(e.getMessage());
-
-						}
-						break;
 
 					case OP4:
 						System.out.println("Please write the question you would like to add");
@@ -289,43 +293,46 @@ public class Main {
 
 
 
-				case OP5:
-					System.out.println("What is the number of the question in which you would like to delete an answer?");
+					case OP5:
+					    System.out.println("What is the number of the question in which you would like to delete an answer?");
+					    int questienIndex6 = s.nextInt();
+					    Question q5 = questionRepository.getQuestionByNumber(questienIndex6);
+					    boolean outBounds = (questienIndex6 < 1 || questienIndex6 > questionRepository.getNumOfAllQustiones());
 
-					int questienIndex6 = s.nextInt();
-					Question q5 = questionRepository.getQuestionByNumber(questienIndex6);
-					boolean outBounds = (questienIndex6<1 || questienIndex6>questionRepository.getNumOfAllQustiones());// if the question in the array out of bounds
-					if(outBounds ||q5 instanceof OpenQuestion){//// Check q5 exist and not open question
-						System.out.println(INVALID);
-						break;
-					}
-					System.out.println("What is the number of the answer you would like to delete?");
-					int ansIndx6 = s.nextInt();// Check Ans exist
-					try {
-						int goodID = ((MultipleChoiceQuestion) q5).getAnswers()[ansIndx6-1].getId();
-						if (((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex6)).deleteAnswerOfQuestion(ansIndx6)) {
-							String sql = "DELETE FROM multiple_choice_answers WHERE question_id = ? AND answer_id = ?";
-							Connection conn = DatabaseManager.getConnection();
-							try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-								pstmt.setInt(1, q5.getId());
-								pstmt.setInt(2, goodID);
-								pstmt.executeUpdate(); // Execute the delete operation
-							}
-							sql = "UPDATE multiplechoice SET number_of_answers = number_of_answers - 1 WHERE question_id = ?";
-							try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-								pstmt.setInt(1, q5.getId());
-								pstmt.executeUpdate(); // Execute the update operation
-							}
-							System.out.println("Answer successfully deleted\n");
-						} else
-							System.out.println(INVALID);
-					}
-										catch (SQLException e) {
-					System.out.println(e.getMessage());
-				}
-	
-					break;
-	
+					    // Check if question is valid and not an Open Question
+					    if (outBounds || q5 instanceof OpenQuestion) {
+					        System.out.println(INVALID);
+					        break;
+					    }
+
+					    System.out.println("What is the number of the answer you would like to delete?");
+					    int ansIndx6 = s.nextInt();
+
+					    // Validate and delete the answer from the repository
+					    if (questionRepository.getQuestionByNumber(questienIndex6) instanceof MultipleChoiceQuestion) {
+					        MultipleChoiceQuestion mcq = (MultipleChoiceQuestion) q5;
+					        int answerId = mcq.getAnswers()[ansIndx6 - 1].getId(); // Retrieve the answer ID
+					        if (mcq.deleteAnswerOfQuestion(ansIndx6)) {
+					            try {
+					                String sql = "DELETE FROM multiple_choice_answers WHERE question_id = ? AND answer_id = ?";
+					                Connection conn = DatabaseManager.getConnection();
+					                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+					                    pstmt.setInt(1, q5.getId());
+					                    pstmt.setInt(2, answerId);
+					                    pstmt.executeUpdate(); // Execute the delete operation
+					                }
+					                System.out.println("Answer successfully deleted from repository and database. The number_of_answers is automatically updated by the trigger.\n");
+					            } catch (SQLException e) {
+					                System.out.println("Error occurred while deleting answer from database: " + e.getMessage());
+					            }
+					        } else {
+					            System.out.println(INVALID);
+					        }
+					    } else {
+					        System.out.println(INVALID);
+					    }
+					    break;
+
 				case OP6:
 					System.out.println("What is the number of the question you would like to delete?");
 					int numOfQuestion = s.nextInt();
