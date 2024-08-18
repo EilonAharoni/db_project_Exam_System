@@ -87,9 +87,26 @@ private final int DEAFULT_SIZE=5;
 				}
 			}
 		}
+		this.repositories[i].numOfAllAnswers = countAnswers(conn,this.repositories[i].getSubject());
+
+		   AnswerDAO a_DAO = new AnswerDAO(conn);
+		   j = 0;
+		   {
+			   String sql = "SELECT answer_id FROM Answers WHERE subject_name = ?";
+
+			   try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				   pstmt.setString(1, subjectName.get(i));
+				   ResultSet rs = pstmt.executeQuery();
+				   while (rs.next()) {
+					   this.repositories[i].allAnswers[j++] = a_DAO.findById(rs.getInt("answer_id"));
+				   }
+			   }
+		   }
 
 	   }
 	   repositories[this.numRepositories++] = new QuestionesRepository("create new repository");
+
+
 
 
    }
@@ -97,6 +114,25 @@ private final int DEAFULT_SIZE=5;
 		String sql = "SELECT COUNT(q.question_id) " +
 				"FROM public.subjects s " +
 				"INNER JOIN questions q ON s.subject_name = q.subject " +
+				"WHERE s.subject_name = ?"; // Use parameter placeholder
+		int count = 0;
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, subjectname); // Set the subjectname parameter
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				count = rs.getInt(1);
+			}
+		}
+
+		return count;
+	}
+
+
+	public int countAnswers(Connection conn, String subjectname) throws SQLException {
+		String sql = "SELECT COUNT(an.answer_id) " +
+				"FROM public.subjects s " +
+				"INNER JOIN answers an  ON s.subject_name = an.subject_name " +
 				"WHERE s.subject_name = ?"; // Use parameter placeholder
 		int count = 0;
 
@@ -155,18 +191,39 @@ private final int DEAFULT_SIZE=5;
 		return ans;
 		
 	}
-	public boolean addRepository(String newRepoSubject) {
+      public boolean addRepository(Connection conn,String newRepoSubject) {
 		for (int i = 0; i < numRepositories; i++) {
 			if (repositories[i].getSubject().equals(newRepoSubject)) // this question alredy exist
 				return false;
 		}
-		
+
 		if (numRepositories == repositories.length)
 			repositories = Arrays.copyOf(repositories, numRepositories * 2);
 
-		repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
-		repositories[numRepositories++] = new QuestionesRepository("create new repository");
-		return true;
+
+		try {
+			// Save the new subject to the database
+			String insertSubjectSQL = "INSERT INTO subjects (subject_name) VALUES (?)";
+			try (PreparedStatement pstmt = conn.prepareStatement(insertSubjectSQL)) {
+				pstmt.setString(1, newRepoSubject);
+				pstmt.executeUpdate();
+			}
+
+			// Add the new repository to the repositories array
+			repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
+			System.out.println("New subject added successfully");
+			repositories[numRepositories++] = new QuestionesRepository("create new repository");
+
+			return true;
+		} catch (SQLException e) {
+			System.out.println("Error occurred while adding new subject to the database: " + e.getMessage());
+			return false;
+		}
+
+//		repositories[numRepositories-1] = new QuestionesRepository(newRepoSubject);
+//		repositories[numRepositories++] = new QuestionesRepository("create new repository");
+//		return true;
 	}
+
 
 }

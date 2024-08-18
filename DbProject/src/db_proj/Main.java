@@ -84,7 +84,7 @@ public class Main {
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		};
+		}
                
             
 		 
@@ -112,7 +112,14 @@ public class Main {
 			if (index == repositoriesManager.getNumRepositories()) {
 				System.out.println("Please enter subject for the new repsitory");
 				String newRepoSubject =  s.next();
-				repositoriesManager.addRepository(newRepoSubject);
+				try {
+					Connection conn = DatabaseManager.getConnection();
+					repositoriesManager.addRepository(conn,newRepoSubject);
+					conn.close();
+				} catch (Exception e) {
+					System.out.println("Could not Enter new subject..");
+				}
+
 			}
 		
 			QuestionesRepository questionRepository = repositoriesManager.getRepository(index-1);
@@ -135,103 +142,156 @@ public class Main {
 				case OP1:
 					System.out.println(questionRepository);
 					break;
-	
-				case OP2:
-					s.nextLine();
-					System.out.println("Write the answer you want to enter");
-					if (questionRepository.addAnswerToRepository(s.nextLine())) {
-						System.out.println("Add successfully\n");
-						break;
-					}
-					System.out.println("Answer is already exist in repository\n");
-					break;
-	
-				case OP3:
-					try {
-						System.out.println("Which question would you like to add an answer to?");
-						int questienIndex2 = s.nextInt();
-						Question q = questionRepository.getQuestionByNumber(questienIndex2);
-						if (q == null || q instanceof OpenQuestion) {
-							System.out.println(INVALID);
-							break;
+
+					case OP2:
+						s.nextLine();
+						System.out.println("Write the answer you want to enter");
+						String answerDescription = s.nextLine();
+						try {
+							Connection conn = DatabaseManager.getConnection();
+							AnswerDAO answerDAO = new AnswerDAO(conn);
+							Answer newAnswer = new Answer(answerDescription);
+							answerDAO.save(newAnswer,questionRepository.getSubject());
+							if (questionRepository.addAnswerToRepository(answerDescription,newAnswer)) {
+								System.out.println("Answer added successfully to both database and repository\n");
+							} else {
+								System.out.println("Answer added to database but already exists in repository\n");
+							}
+							conn.close();
+						} catch (SQLException e) {
+							System.out.println("Error occurred while saving answer to database: " + e.getMessage());
 						}
-						System.out.println("Answers thet already exist in the qustion: \n"
-								+ ((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)).showeQuestion());
-						System.out.println(questionRepository.showAnswersFromRepository((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)));
-						System.out.println("Please write the number of the new answer");
-						int ansIndx2 = s.nextInt();
-						if (ansIndx2 > 0 && ansIndx2 <= questionRepository.getNumOfAnswers()) {
-							System.out.println("Please write the correctness of the answer (true/false)");
-							boolean correctness = s.nextBoolean();
-							if (questionRepository.addAnswerFromRepoToQusteion(questienIndex2, ansIndx2, correctness)) {
-								System.out.println("Add successfully\n");
+						break;
+
+					case OP3:
+						try {
+							System.out.println("Which question would you like to add an answer to?");
+							int questienIndex2 = s.nextInt();
+							Question q = questionRepository.getQuestionByNumber(questienIndex2);
+							if (q == null || q instanceof OpenQuestion) {
+								System.out.println(INVALID);
 								break;
 							}
-						}
-		
-						System.out.println(INVALID);
-						break;
-		
-						
-					}
-					catch (InputMismatchException e) {
-					System.out.println(e.getMessage());	
-				
-					}
-					break;
-					
-				case OP4:
-					System.out.println("Please write the question you would like to add");
-					s.nextLine();
-					String description = s.nextLine();
-					System.out.println("Please choose the difficulty level of the question");
-					Question.eDifficultyLevel[] allLevels = Question.eDifficultyLevel.values();
-					for (int i = 0; i < allLevels.length; i++) {
-						System.out.println(allLevels[i].ordinal()+1 + ") "+ allLevels[i].name());
-					}
-					 int levelInput = s.nextInt(); // difficulty level input
-					    
-					    // Validate the input
-					    if (levelInput < 1 || levelInput > allLevels.length) {
-					        System.out.println("Invalid difficulty level\n");
-					        break;
-					    }
-					
-					    Question.eDifficultyLevel theLevel = allLevels[levelInput - 1];
-					
-					System.out.println("What type of question?\n"
-							+ "Multiple choice question press -->1\n"
-							+ "Open qustion press -->2\n");
-					int ans = s.nextInt(); //question type
-					switch(ans) {
-					case 1:
-						if (questionRepository.addMultipleChoiceQuestion(description,theLevel)) {
-//							 saveRepositories(repositoriesManager,"repository.dat");
-							System.out.println("Question successfully added\n");
-						}
-							
-						else
+							System.out.println("Answers thet already exist in the qustion: \n"
+									+ ((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)).showeQuestion());
+							System.out.println(questionRepository.showAnswersFromRepository((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex2)));
+							System.out.println("Please write the number of the new answer");
+							int ansIndx2 = s.nextInt();
+							if (ansIndx2 > 0 && ansIndx2 <= questionRepository.getNumOfAnswers()) {
+								System.out.println("Please write the correctness of the answer (true/false)");
+								boolean correctness = s.nextBoolean();
+								if (questionRepository.addAnswerFromRepoToQusteion(questienIndex2, ansIndx2, correctness)) {
+
+									String sql = "INSERT INTO Multiple_Choice_Answers (question_id, answer_id, is_correct) VALUES (?, ?, ?)";
+									Connection conn = DatabaseManager.getConnection();
+									PreparedStatement pstmt2 = conn.prepareStatement(sql);
+									Answer ans = questionRepository.allAnswers[ansIndx2-1];
+									int answerId = ans.getId();
+									int questionId = q.getId();
+									pstmt2.setInt(1, questionId);  // The generated question_id from the MultipleChoice table
+									pstmt2.setInt(2, answerId);          // The answer_id from the Answer object
+									pstmt2.setBoolean(3, correctness);  // Assuming isCorrect() returns a boolean indicating if it's the correct answer
+									pstmt2.executeUpdate();
+									sql = "UPDATE multiplechoice SET number_of_answers = number_of_answers + 1 WHERE question_id = ?";
+									try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+										pstmt.setInt(1, q.getId());
+										pstmt.executeUpdate(); // Execute the update operation
+									}
+									System.out.println("Add successfully\n");
+									break;
+								}
+							}
+
 							System.out.println(INVALID);
+							break;
+
+
+						}
+						catch (InputMismatchException | SQLException e) {
+							System.out.println(e.getMessage());
+
+						}
 						break;
-						
-					case 2:
-						System.out.println("Please write the answer to the question");
+
+					case OP4:
+						System.out.println("Please write the question you would like to add");
 						s.nextLine();
-						String answer = s.nextLine();
-						if (questionRepository.addOpenQuestion(description,theLevel,answer))
-							System.out.println("Question successfully added\n");
-						else
-							System.out.println(INVALID);
+						String description = s.nextLine();
+						System.out.println("Please choose the difficulty level of the question");
+						Question.eDifficultyLevel[] allLevels = Question.eDifficultyLevel.values();
+						for (int i = 0; i < allLevels.length; i++) {
+							System.out.println(allLevels[i].ordinal()+1 + ") "+ allLevels[i].name());
+						}
+						int levelInput = s.nextInt(); // difficulty level input
+
+						// Validate the input
+						if (levelInput < 1 || levelInput > allLevels.length) {
+							System.out.println("Invalid difficulty level\n");
+							break;
+						}
+
+						Question.eDifficultyLevel theLevel = allLevels[levelInput - 1];
+
+						System.out.println("What type of question?\n"
+								+ "Multiple choice question press -->1\n"
+								+ "Open qustion press -->2\n");
+						int ans = s.nextInt(); //question type
+						try {
+							Connection conn = DatabaseManager.getConnection();
+							QuestionDAO questionDAO = new QuestionDAO(conn);
+							AnswerDAO answerDAO = new AnswerDAO(conn);
+
+							switch(ans) {
+								case 1:
+									if (questionRepository.addMultipleChoiceQuestion(description,theLevel)) {
+//							saveRepositories(repositoriesManager,"repository.dat");
+
+										// Get the last added question
+										Question question = questionRepository.allQuestions[questionRepository.numOfAllQustiones-1];
+
+
+
+
+										// Save question to the database
+										questionDAO.save(question, questionRepository.getSubject());
+										System.out.println("Question successfully added to repository and database\n");
+									}
+
+									else
+										System.out.println(INVALID);
+									break;
+
+								case 2:
+									System.out.println("Please write the answer to the question");
+									s.nextLine();
+									String answer = s.nextLine();
+									Answer newAns = new Answer(answer);
+									answerDAO.save(newAns,questionRepository.getSubject());
+
+									if (questionRepository.addOpenQuestion(description,theLevel,answer,newAns)) {
+										// Get the last added question
+										Question question = questionRepository.allQuestions[questionRepository.numOfAllQustiones-1];
+
+										// Save question to the database
+										questionDAO.save(question, questionRepository.getSubject());
+										System.out.println("Question successfully added to repository and database\n");
+									}
+									else
+										System.out.println(INVALID);
+									break;
+
+							}
+							conn.close();
+						} catch (SQLException e) {
+							System.out.println("Error occurred while saving question to database: " + e.getMessage());
+						}
 						break;
-					
-					}
-					break;
-					
-				
-	
+
+
+
 				case OP5:
 					System.out.println("What is the number of the question in which you would like to delete an answer?");
-					
+
 					int questienIndex6 = s.nextInt();
 					Question q5 = questionRepository.getQuestionByNumber(questienIndex6);
 					boolean outBounds = (questienIndex6<1 || questienIndex6>questionRepository.getNumOfAllQustiones());// if the question in the array out of bounds
@@ -241,17 +301,51 @@ public class Main {
 					}
 					System.out.println("What is the number of the answer you would like to delete?");
 					int ansIndx6 = s.nextInt();// Check Ans exist
-					if (((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex6)).deleteAnswerOfQuestion(ansIndx6))
-						System.out.println("Anwer successfully deleted\n");
-					else
-						System.out.println(INVALID);
+					try {
+						int goodID = ((MultipleChoiceQuestion) q5).getAnswers()[ansIndx6-1].getId();
+						if (((MultipleChoiceQuestion) questionRepository.getQuestionByNumber(questienIndex6)).deleteAnswerOfQuestion(ansIndx6)) {
+							String sql = "DELETE FROM multiple_choice_answers WHERE question_id = ? AND answer_id = ?";
+							Connection conn = DatabaseManager.getConnection();
+							try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+								pstmt.setInt(1, q5.getId());
+								pstmt.setInt(2, goodID);
+								pstmt.executeUpdate(); // Execute the delete operation
+							}
+							sql = "UPDATE multiplechoice SET number_of_answers = number_of_answers - 1 WHERE question_id = ?";
+							try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+								pstmt.setInt(1, q5.getId());
+								pstmt.executeUpdate(); // Execute the update operation
+							}
+							System.out.println("Answer successfully deleted\n");
+						} else
+							System.out.println(INVALID);
+					}
+										catch (SQLException e) {
+					System.out.println(e.getMessage());
+				}
 	
 					break;
 	
 				case OP6:
 					System.out.println("What is the number of the question you would like to delete?");
-					if (questionRepository.deleteQuestion(s.nextInt()))// Check q exist + define int
-						System.out.println("Question successfully deleted\n");
+					int numOfQuestion = s.nextInt();
+					int questionID = questionRepository.allQuestions[numOfQuestion-1].getId();
+					if (questionRepository.deleteQuestion(numOfQuestion))// Check q exist + define int
+					{
+						try {
+								String sql = "DELETE FROM questions WHERE question_id = ?";
+								Connection conn = DatabaseManager.getConnection();
+								try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+									pstmt.setInt(1, questionID);
+									pstmt.executeUpdate(); // Execute the delete operation
+								}
+								System.out.println("Question successfully deleted\n");
+
+						}
+						catch (SQLException e) {
+							System.out.println(e.getMessage());
+						}
+					}
 					else
 						System.out.println(INVALID);
 	
@@ -369,7 +463,7 @@ public class Main {
 								for(int i =0;i<questionRepository.numOfAllAnswers;i++) {
 									if(questionRepository.allAnswers[i] == null)
 										break;
-									answerdao_2.save(questionRepository.allAnswers[i]);
+									answerdao_2.save(questionRepository.allAnswers[i],questionRepository.getSubject());
 								}
 								flag = true;
 								conn2.close();

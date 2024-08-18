@@ -104,6 +104,7 @@ public class QuestionDAO {
         return answers.toArray(new Answer[0]); // Convert List to Array
     }
 
+
     private OpenQuestion findOpenQuestionById(int id) throws SQLException {
         String sql = "SELECT * FROM OpenQuestions WHERE question_id = ?";
         OpenQuestion openQuestion = null;
@@ -149,7 +150,7 @@ public class QuestionDAO {
                     ResultSet answersRs = answersPstmt.executeQuery();
 
                     Answer[] answers = new Answer[MAX_NUM_OF_ANSWERS];
-                    boolean[] isCorrect = new boolean[multipleChoice.getNumOfAnswers()];
+                    boolean[] isCorrect = new boolean[MAX_NUM_OF_ANSWERS];
                     int index = 0;
 
                     AnswerDAO answerDao = new AnswerDAO(connection);
@@ -169,6 +170,7 @@ public class QuestionDAO {
 
         return multipleChoice;
     }
+
 
 
 

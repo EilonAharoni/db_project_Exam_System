@@ -52,72 +52,72 @@ public class ManuallyExam extends Exam{
 					System.out.println("This question already exists, plese choose again\n");
 					continue;
 				};// Add new qustion to the exam
-			idList.add(repository.getQuestionByNumber(qChoice).getId());
-				if(req1 instanceof MultipleChoiceQuestion) {
-					if(((MultipleChoiceQuestion) req1).getNumOfAnswers()<MINIMUM_ANSSWERS_IN_QUESTION) {
-						throw new NotEnoughAnswersInQuestionException(qChoice);
-				}
-				}
-				
-				
-				if(req1 instanceof MultipleChoiceQuestion) {
-				System.out.println("How many answers would you like in this question?");
-				int amountOfAnswers = s.nextInt(); // number of wanted answers
-				int amountOfExistAnswers = ((MultipleChoiceQuestion) repository.getQuestionByNumber(qChoice)).getNumOfAnswers();// Number of exist
-																							// answer in the qustion
-				if (amountOfAnswers < 1 || amountOfAnswers > amountOfExistAnswers) {
-					System.out.println(INVALID);
-					break;
-				}
-				if (amountOfAnswers < MINIMUM_ANSSWERS_IN_QUESTION) {
-					throw new NotEnoughAnswersInQuestionException(amountOfAnswers);
-				}
-				
-				System.out.println(req1.toString()); // print the answers of the qustion
-				int aChoice = -1;
-				while (aChoice != 0 && amountOfAnswers > 0) { // loop to add answers
-						System.out.println("Chooce your answers or press --> 0 to exit ");
-						aChoice = s.nextInt();
-						int numOfAnswers = ((MultipleChoiceQuestion) req1).getNumOfAnswers();
-						if(aChoice<1 || aChoice > numOfAnswers) {
-							System.out.println(INVALID);
-							continue;
-						}
-						Answer ans = ((MultipleChoiceQuestion) req1).getAnswerByNumber(aChoice);
-						if (ans == null) {// can check just the int (aChoice)
-							System.out.println(INVALID);
-							break;
-						}
-						
-						boolean correction =((MultipleChoiceQuestion) req1).getAnswersCorrection(aChoice);
-						
-						if(!((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]// creat new answer by Description and corection
-
-	                     ).addAnswer(ans, correction)) {
-							System.out.println("This answer has already been selected, please select a new answer\n");
-							continue;
-						};
-						
-						amountOfAnswers--;// Numbers of answers to add
-					}
-				
-				int correctAnswersCount = ((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).getCorrectAnswersCount();
-				if (correctAnswersCount == 1) {
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, false);
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, false);
-
-				}
-				else if (correctAnswersCount == 0) {
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, false);
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, true);
-				}
-				else {
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).cleanAnswersCorrection();
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, true);
-					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, false);
-
-				  }
-		       }
+			    idList.add(repository.getQuestionByNumber(qChoice).getId());
+//				if(req1 instanceof MultipleChoiceQuestion) {
+//					if(((MultipleChoiceQuestion) req1).getNumOfAnswers()<MINIMUM_ANSSWERS_IN_QUESTION) {
+//						throw new NotEnoughAnswersInQuestionException(qChoice);
+//				}
+//				}
+//
+//
+//				if(req1 instanceof MultipleChoiceQuestion) {
+//				System.out.println("How many answers would you like in this question?");
+//				int amountOfAnswers = s.nextInt(); // number of wanted answers
+//				int amountOfExistAnswers = ((MultipleChoiceQuestion) repository.getQuestionByNumber(qChoice)).getNumOfAnswers();// Number of exist
+//																							// answer in the qustion
+//				if (amountOfAnswers < 1 || amountOfAnswers > amountOfExistAnswers) {
+//					System.out.println(INVALID);
+//					break;
+//				}
+//				if (amountOfAnswers < MINIMUM_ANSSWERS_IN_QUESTION) {
+//					throw new NotEnoughAnswersInQuestionException(amountOfAnswers);
+//				}
+//
+//				System.out.println(req1.toString()); // print the answers of the qustion
+//				int aChoice = -1;
+//				while (aChoice != 0 && amountOfAnswers > 0) { // loop to add answers
+//						System.out.println("Chooce your answers or press --> 0 to exit ");
+//						aChoice = s.nextInt();
+//						int numOfAnswers = ((MultipleChoiceQuestion) req1).getNumOfAnswers();
+//						if(aChoice<1 || aChoice > numOfAnswers) {
+//							System.out.println(INVALID);
+//							continue;
+//						}
+//						Answer ans = ((MultipleChoiceQuestion) req1).getAnswerByNumber(aChoice);
+//						if (ans == null) {// can check just the int (aChoice)
+//							System.out.println(INVALID);
+//							break;
+//						}
+//
+//						boolean correction =((MultipleChoiceQuestion) req1).getAnswersCorrection(aChoice);
+//
+//						if(!((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]// creat new answer by Description and corection
+//
+//	                     ).addAnswer(ans, correction)) {
+//							System.out.println("This answer has already been selected, please select a new answer\n");
+//							continue;
+//						};
+//
+//						amountOfAnswers--;// Numbers of answers to add
+//					}
+//
+//				int correctAnswersCount = ((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).getCorrectAnswersCount();
+//				if (correctAnswersCount == 1) {
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, false);
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, false);
+//
+//				}
+//				else if (correctAnswersCount == 0) {
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, false);
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, true);
+//				}
+//				else {
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).cleanAnswersCorrection();
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.multipleAnswers, true);
+//					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, false);
+//
+//				  }
+//		       }
 				amountOfWantQuestions--;
 			} 
 				//this.deployToFile();
