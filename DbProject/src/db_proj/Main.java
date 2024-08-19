@@ -21,7 +21,7 @@ public class Main {
 	public static Scanner s = new Scanner(System.in);
 
 	public static void main(String[] args) throws IOException {
-		final String INVALID = "Invalid value\n";
+		final String INVALID = "Invalid input\n";
 		final int EXIT = 0;
 		 UserDAO userDAO = new UserDAO();
 		 User user = null;
@@ -34,7 +34,7 @@ public class Main {
 		        System.out.println("Welcome! Please choose an option:");
 		        System.out.println("1. Log in");
 		        System.out.println("2. Register");
-		        
+		        try {
 		        choice = s.nextInt();
 		        s.nextLine(); // Consume newline
 		        
@@ -75,14 +75,21 @@ public class Main {
 	                    userConect = true;
 	                }
 		        }
-				
+		        else {
+		        	System.out.println("Invalid option. Please choose 1 or 2.");
+		        	
+		        }
+		      }	catch (InputMismatchException e) {
+		    	   System.out.println("Invalid input. Please enter a number.");
+	                s.nextLine(); // Clear the invalid input from the scanner
+			  }   
 			} while(!userConect);
 		
 	        
 
 	    conn.close();    
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
+			System.out.println(INVALID);
 			e1.printStackTrace();
 		}
                
@@ -124,7 +131,7 @@ public class Main {
 			}
 		
 			QuestionesRepository questionRepository = repositoriesManager.getRepository(index-1);
-	//		QuestionesRepository questionRepository = new QuestionesRepository();
+	
 			final int BACK = 0;
 			final int OP1 = 1;
 			final int OP2 = 2;
@@ -362,16 +369,25 @@ public class Main {
 					break;
 	
 				case OP7:// creating a exem manually
-					System.out.println("How many questions would you like on the exam? ");
-					int amountOfQuestions = s.nextInt();// get the amount of question the user want
-					int amountOfExistingQustions = questionRepository.getNumOfAllQustiones();// get the amount of all
-																								// qustions in the
-					// repository
-					if (amountOfQuestions < 1 || amountOfQuestions > amountOfExistingQustions) {
-						System.out.println(INVALID);
-						break;
+					System.out.println("How many questions would you like on the exam?");
+					int amountOfQuestions = 0;
+					boolean validInput = false;
+
+					while (!validInput) {
+					    try {
+					        amountOfQuestions = s.nextInt(); // get the amount of questions the user wants
+					        int amountOfExistingQuestions = questionRepository.getNumOfAllQustiones(); // get the amount of all questions in the repository
+
+					        if (amountOfQuestions < 1 || amountOfQuestions > amountOfExistingQuestions) {
+					            System.out.println(INVALID);
+					        } else {
+					            validInput = true; // Valid input, exit the loop
+					        }
+					    } catch (InputMismatchException e) {
+					        System.out.println("Invalid input. Please enter a valid number.");
+					        s.nextLine(); // Clear the invalid input from the scanner
+					    }
 					}
-	
 					System.out.println(questionRepository);// print repository to show the user
 					ManuallyExam manuallyExam = new ManuallyExam(amountOfQuestions);
 					int generatedTestId = 0;
@@ -403,15 +419,30 @@ public class Main {
 					
 					/////// creating aouto exem 
 				case OP8:	
-					System.out.println("How many questions would you like on the exam? ");
-					 amountOfQuestions = s.nextInt();// get the amount of question the user want
-					 amountOfExistingQustions = questionRepository.getNumOfAllQustiones();// get the amount of all
-					 
-					 if (amountOfQuestions < 1 || amountOfQuestions > amountOfExistingQustions) {
-							System.out.println(INVALID);
-							break;
-						}
-					 
+					 amountOfQuestions = 0;
+					int amountOfExistingQuestions = questionRepository.getNumOfAllQustiones(); // get the amount of all questions in the repository
+					 validInput = false;
+
+					while (!validInput) {
+					    try {
+					        System.out.println("How many questions would you like on the exam?");
+					        amountOfQuestions = s.nextInt(); // get the amount of questions the user wants
+					        
+					        if (amountOfQuestions < 1 || amountOfQuestions > amountOfExistingQuestions) {
+					            System.out.println(INVALID);
+					        } else {
+					            validInput = true; // Valid input, exit the loop
+					        }
+					    } catch (InputMismatchException e) {
+					        System.out.println("Invalid input. Please enter a valid number.");
+					        s.nextLine(); // Clear the invalid input from the scanner
+					    }
+					}
+
+					if (!validInput) {
+					    break;
+					}
+
 						 AutomaticExam AutomaticExam = new AutomaticExam(amountOfQuestions);
 						int generatedTestId2 = 0;
 						 try {
