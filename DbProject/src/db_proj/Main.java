@@ -101,7 +101,7 @@ public class Main {
 			Connection conn = DatabaseManager.getConnection();
 			repositoriesManager.initRepositoriesFromDB(conn);
 			conn.close();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			System.out.println("Could not find initialization file..");
 		}
 		int index = -1;
@@ -544,14 +544,14 @@ public class Main {
 	}
 
 	private static void showManu() {
-		System.out.println("To show all questiones and answers) press--> 1");
-		System.out.println("To add new answer to repository) press--> 2");
-		System.out.println("To add an existing answer to question) press--> 3");
-		System.out.println("To add a new question) press--> 4");
-		System.out.println("To delete an answer to a question) press--> 5");
-		System.out.println("To delete a question) press--> 6");
-		System.out.println("To creat an exam manually) press--> 7");
-		System.out.println("To creat an exam automatically) press--> 8");
+		System.out.println("To show all questiones and answers press--> 1");
+		System.out.println("To add new answer to repository press--> 2");
+		System.out.println("To add an existing answer to question press--> 3");
+		System.out.println("To add a new question press--> 4");
+		System.out.println("To delete an answer to a question press--> 5");
+		System.out.println("To delete a question press--> 6");
+		System.out.println("To creat an exam manually press--> 7");
+		System.out.println("To creat an exam automatically press--> 8");
 		System.out.println("To save all answers to data base Press --> 9");
 		System.out.println("To save all questions to data base Press --> 10");
 		System.out.println("To get a question to data base Press --> 11");
