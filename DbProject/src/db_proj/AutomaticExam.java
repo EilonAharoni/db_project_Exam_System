@@ -1,8 +1,11 @@
 package db_proj;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Random;
-
+import java.util.ArrayList;
+import java.util.List;
 public class AutomaticExam extends Exam {
 
 	public AutomaticExam(int amountOfWantQuestions) {
@@ -11,10 +14,10 @@ public class AutomaticExam extends Exam {
 	}
 
 	@Override
-	public void creatExam(QuestionesRepository qr)
-			throws MoreQuestionsThanAllowedException, NotEnoughAnswersInQuestionException, IOException {
-		
-		
+	public void creatExam(QuestionesRepository qr, int testID, Connection conn)
+			throws MoreQuestionsThanAllowedException, NotEnoughAnswersInQuestionException, IOException, SQLException {
+
+		List<Integer> idList = new ArrayList<>();
 		if(amountOfWantQuestions > MAX_OF_QUESTIONS_ALLOW) {
 			throw new MoreQuestionsThanAllowedException(amountOfWantQuestions);
 		}
@@ -34,6 +37,7 @@ public class AutomaticExam extends Exam {
 				if(!this.addQuestionInExam(question)) {//if this question is alredy exist
 					continue;
 				}
+
 				int answerCounter = 0;
 				
 				while(answerCounter < AutomaticExam.MINIMUM_ANSSWERS_IN_QUESTION) {
@@ -59,11 +63,14 @@ public class AutomaticExam extends Exam {
 					((MultipleChoiceQuestion) this.examQuestions[numOfQustionInExam-1]).addAnswer(this.noAnswer, false);
 				
 					questionCounter++;
+					idList.add(question.getId());
 			}
 			
 			else if(question instanceof OpenQuestion){
-				this.addQuestionInExam(question);
-				questionCounter++;
+				if(this.addQuestionInExam(question)) {
+					questionCounter++;
+					idList.add(question.getId());
+				}
 			}
 			
 
@@ -71,7 +78,7 @@ public class AutomaticExam extends Exam {
 			
 			
 		}
-		this.deployToFile();
+		this.saveTestToDataBase(conn,testID,idList);
 
 	}
 

@@ -7,6 +7,12 @@ public class OpenQuestion extends Question {
 		super(questionDescriptio, dificultyLevel);
 		this.setSchoolAnswer(schoolAnswer);
 	}
+
+	// ADD NEW CONST FOR QUESTION DAO
+	public OpenQuestion(String questionDescriptio,eDifficultyLevel dificultyLevel,Answer schoolAnswer) {
+		super(questionDescriptio, dificultyLevel);
+		this.schoolAnswer = schoolAnswer;
+	}
 	
 	public String showeQuestion() {// without the answer
 		StringBuffer sb1 = new StringBuffer();
@@ -28,6 +34,11 @@ public class OpenQuestion extends Question {
 
 	public String getSchoolAnswer() {
 		return schoolAnswer.getAnswerDescription();
+	}
+
+	public int getSchoolAnswerID()
+	{
+		return this.schoolAnswer.getId();
 	}
 
 	public void setSchoolAnswer(String schoolAnswer) {

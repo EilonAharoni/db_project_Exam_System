@@ -3,9 +3,14 @@ package db_proj;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public abstract class Exam implements Examable {
 	protected Question[] examQuestions;
@@ -20,8 +25,25 @@ public abstract class Exam implements Examable {
 		this.examQuestions = new Question[amountOfWantQuestions];
 		this.noAnswer = new Answer("No answer is correct!");
 	}
-	
-	
+
+
+
+
+
+	public void saveTestToDataBase(Connection conn,int testID, List<Integer> idList) throws SQLException
+	{
+		String sql = "INSERT INTO test_questions (test_id, question_id) VALUES (?, ?)";
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			for (Integer id : idList) {
+				System.out.println(id);
+				pstmt.setInt(1, testID);
+				pstmt.setInt(2, id.intValue());
+				pstmt.executeUpdate(); // Execute each insertion individually
+			}
+		}
+
+	}
 	
 	
 
@@ -81,7 +103,7 @@ public abstract class Exam implements Examable {
 				return false;
 		}
 		if(question instanceof MultipleChoiceQuestion) {
-		this.examQuestions[numOfQustionInExam++] = new MultipleChoiceQuestion((MultipleChoiceQuestion) question);
+		this.examQuestions[numOfQustionInExam++] = new MultipleChoiceQuestion((MultipleChoiceQuestion)question);
 					}
 		else {
 			this.examQuestions[numOfQustionInExam++] = new OpenQuestion((OpenQuestion) question);

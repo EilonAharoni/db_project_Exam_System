@@ -3,15 +3,12 @@ package db_proj;
 import java.io.Serializable;
 
 public class Answer implements Serializable {
-
 	private static final long serialVersionUID = -2222817151022932593L;
 	private int id;
 	private String answerDescription;
 	
 	public Answer(String answerDescription) {
 		this.answerDescription = answerDescription;
-	
-		
 	}
     // Getters and Setters
     public int getId() {
