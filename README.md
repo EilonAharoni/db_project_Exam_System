@@ -40,7 +40,7 @@ Clone the Repository:
 
 bash
 Copy code
-git clone https://github.com/your-username/exam-builder.git
+git clone https://github.com/EilonAharoni/db_project_Exam_System.git
 Set Up the Database:
 
 Create a PostgreSQL database for the project.
